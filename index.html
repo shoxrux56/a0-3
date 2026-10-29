@@ -214,37 +214,25 @@ const pickV=()=>{try{VR=speechSynthesis.getVoices().find(v=>/^ru/i.test(v.lang))
 try{pickV();speechSynthesis.onvoiceschanged=pickV}catch(e){}
 
 /* ===== OVOZ TIZIMI ===== */
-let AU=null,SOUND=false,SID=0;
-const SIL='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+let SOUND=false,SID=0;
 
 // Birinchi bosishda brauzer ovozni ochadi
 function unlock(){
   try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume()}catch(e){}
-  try{AU=new Audio();AU.src=SIL;const p=AU.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}
   try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}catch(e){}
-}
-// Zaxira: Google ovozi (telefonda rus ovozi bo'lmasa). Bitta Audio elementi ishlatiladi.
-function web(t){
-  try{speechSynthesis.cancel()}catch(e){}
-  try{
-    if(!AU)AU=new Audio();
-    AU.src='https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ru&q='+encodeURIComponent(t);
-    const p=AU.play();if(p&&p.catch)p.catch(()=>{});
-  }catch(e){}
 }
 function say(t){
   if(!SOUND)return;
   const id=++SID;pickV();
-  if(!VR||!("speechSynthesis" in window))return web(t);
+  if(!VR||!("speechSynthesis" in window))return;
   let started=false;
   const u=new SpeechSynthesisUtterance(t);
   u.lang="ru-RU";u.rate=.85;u.voice=VR;
   u.onstart=()=>{started=true};
-  u.onerror=()=>{if(!started&&id===SID)web(t)};
+  
   window._u=u;
   try{speechSynthesis.cancel()}catch(e){}
   setTimeout(()=>{try{speechSynthesis.speak(u)}catch(e){}},80);
-  setTimeout(()=>{if(!started&&id===SID){try{speechSynthesis.cancel()}catch(e){}web(t)}},1500);
 }
 
 /* Canvas */
